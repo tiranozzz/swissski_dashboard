@@ -6,7 +6,7 @@ import pandas as pd
 class DatabaseConnection:
 
     def __init__(self, config):
-        self.database_config = config.config["database"]
+        self.database_config = config["database"]
 
     def get_connection(self):
         conn = snowflake.connector.connect(
