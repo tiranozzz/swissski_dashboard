@@ -1,8 +1,11 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import plotly.express as px
+from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
 from Queries import get_hist_data, get_test_files, read_file
 from ConnectUtil import DatabaseConnection, Config
-#import numpy as np
+
+
 
 st.set_page_config(layout="centered", page_title="Swiss Ski Ampelsystem")
 # Load Config
@@ -25,29 +28,36 @@ with st.spinner("Loading data files..."):
     for f in files:
         st.subheader(f)
         file_df = read_file(data_path + "\\" + f)
-        st.dataframe(file_df)
+        sel_row = AgGrid(
+            data=file_df, 
+            gridOptions=config["ag_grid"]["grid_options"],
+            #height=300, 
+            width='100%',
+            data_return_mode="AS_INPUT", 
+            update_mode="GRID_CHANGED",
+            fit_columns_on_grid_load=True,
+            allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
+            enable_enterprise_modules=False
+        )
 
-st.header("Historical data")
-st.subheader("Population")
-attribute_sel = st.radio('Select test-attribute',(config["test_attributes"].keys()))
-st.write('You selected:', attribute_sel)
 # Filter data
-attribute_data = histData[histData["ATTRIBUTE"] == attribute_sel]
-# Plot data
-col1, col2 = st.columns(2)
-with col1:
-   fig = plt.figure()
-   st.header("Distribution male")
-   plt.hist(attribute_data[attribute_data["GENDER"] == "M"]["NUMERICALVALUE"], bins=20)
-   plt.xlabel(attribute_sel)
-   st.pyplot(fig)
+st.header("Historical data")
+if len(sel_row["selected_rows"]) > 0:
+    sel_row_data = sel_row["selected_rows"][0]
+    attribute_data = histData[histData["ATTRIBUTE"] == sel_row_data.get("Attribute")]
+    # Plot data
+    # fig = plt.figure()
+    # plt.title("Histogram population")
+    # plt.hist(attribute_data["NUMERICALVALUE"], bins=20, color="skyblue")
+    # plt.plot(sel_row_data.get("Value"), 0, "r|", markersize=15, label=(sel_row_data.get("Athlete") + " (" + str(sel_row_data.get("Value")) + ")"))
+    # plt.xlabel(sel_row_data.get("Attribute"))
+    # plt.ylabel("#Tests")
+    # plt.legend()
+    # st.pyplot(fig)
 
-with col2:
-   fig = plt.figure()
-   st.header("Distribution female")
-   plt.hist(attribute_data[attribute_data["GENDER"] == "F"]["NUMERICALVALUE"], bins=20, color="orange")
-   plt.xlabel(attribute_sel)
-   st.pyplot(fig)
+    fig = px.histogram(attribute_data, x="NUMERICALVALUE", title="Histogram population")
+    fig.add_vline(x=sel_row_data.get("Value"), line_width=10, line_color="red")
+    st.plotly_chart(fig, use_container_width=True)
 
 # st.subheader("Given athlete")
 # fig, ax = plt.subplots(nrows=1, ncols=1)
