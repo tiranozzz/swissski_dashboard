@@ -1,6 +1,8 @@
-Attribute;Athlete;Value
-Groesse;Luchsinger Jan;183.5
-Groesse;Luchsinger Jan;191
-Groesse;Luchsinger Jan;205
-BMI;Odermatt Marco;25
+Attribute;Athlete;Value;TESTDATE
+Groesse;Luchsinger Jan;183.5;2022-03-23
+Groesse;Luchsinger Jan;191;2022-03-23
+Groesse;Luchsinger Jan;205;2022-03-23
+BMI;Odermatt Marco;25;2022-03-23
+Gewicht;Janka Carlo;85;2020-03-01
+BMI;Holdener Wendy;26;2023-01-01
 

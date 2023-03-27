@@ -1,13 +1,20 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
+
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
-from Queries import get_hist_data, get_test_files, read_file
-from ConnectUtil import DatabaseConnection, Config
+from queries import get_hist_data, get_test_files, read_file, get_athlete_data
+from models import get_linear_model, get_pred
+from connect_util import DatabaseConnection, Config
+from datetime import datetime, date
+from PIL import Image
+import requests
+from io import BytesIO
 
 
-
-st.set_page_config(layout="centered", page_title="Swiss Ski Ampelsystem")
+st.set_page_config(layout="wide", page_title="Swiss Ski Ampelsystem")
 # Load Config
 with st.spinner("Loading configuration..."):
     c = Config()
@@ -15,11 +22,12 @@ with st.spinner("Loading configuration..."):
 # Establish Database Connection
 with st.spinner("Establishing database connection..."):
     dbConn = DatabaseConnection(config=config).get_connection()
-# Loading historical data
-with st.spinner("Loading historical data..."):
-    histData = get_hist_data(dbConn, config=config)
+# Loading data from Data Warehouse
+with st.spinner("Loading data from Data Warehouse..."):
+    hist_data = get_hist_data(dbConn, config=config)
+    athlete_data = get_athlete_data(dbConn, config=config)
 
-st.title("Swissski Dashboard")
+#st.title("Swissski Dashboard")
 # Show data files
 with st.spinner("Loading data files..."):
     data_path = current_path + "\\data"
@@ -40,30 +48,60 @@ with st.spinner("Loading data files..."):
             enable_enterprise_modules=False
         )
 
-# Filter data
-st.header("Historical data")
+# Historical data
 if len(sel_row["selected_rows"]) > 0:
+    st.header("Historical data")
+    col1, col2= st.columns(2)
     sel_row_data = sel_row["selected_rows"][0]
-    attribute_data = histData[histData["ATTRIBUTE"] == sel_row_data.get("Attribute")]
-    # Plot data
-    # fig = plt.figure()
-    # plt.title("Histogram population")
-    # plt.hist(attribute_data["NUMERICALVALUE"], bins=20, color="skyblue")
-    # plt.plot(sel_row_data.get("Value"), 0, "r|", markersize=15, label=(sel_row_data.get("Athlete") + " (" + str(sel_row_data.get("Value")) + ")"))
-    # plt.xlabel(sel_row_data.get("Attribute"))
-    # plt.ylabel("#Tests")
-    # plt.legend()
-    # st.pyplot(fig)
+    sel_row_testdate = date.fromisoformat(sel_row_data.get("TESTDATE")) # datetime.strptime(sel_row_data.get("TESTDATE"), "%Y-%m-%d").date()
+    attribute_data = hist_data[hist_data["ATTRIBUTE"] == sel_row_data.get("Attribute")]
+    attribute_athlete_data = attribute_data[attribute_data["NAME"] == sel_row_data.get("Athlete")]
+    attribute_athlete_data = attribute_athlete_data.sort_values(by=["TESTDATE"])
 
-    fig = px.histogram(attribute_data, x="NUMERICALVALUE", title="Histogram population")
-    fig.add_vline(x=sel_row_data.get("Value"), line_width=10, line_color="red")
-    st.plotly_chart(fig, use_container_width=True)
+    # Metadata of athlete
+    athlete_metadata = athlete_data.loc[sel_row_data.get("Athlete")]
+    athlete_birthday = date.fromisoformat(athlete_metadata["GEBDAT"]) # datetime.strptime(athlete_metadata["GEBDAT"], "%Y-%m-%d").date()
+    
+    # Histogram
+    with col1:
+        fig = px.histogram(attribute_data, x="NUMERICALVALUE", title="Histogram population")
+        fig.add_vline(x=sel_row_data.get("Value"), line_width=10, line_color="red")
+        st.plotly_chart(fig, use_container_width=True)
+        st.table(athlete_metadata)
 
-# st.subheader("Given athlete")
-# fig, ax = plt.subplots(nrows=1, ncols=1)
-# ax.scatter(histData[histData["NAME"] == "Luchsinger Jan"]["TESTDATE"], histData[histData["NAME"] == "Luchsinger Jan"]["NUMERICALVALUE"])
-# ax.set_title("Past test values")
-# ax.set_xlabel(attribute_sel)
-# st.pyplot(fig)
+    # Past values
+    with col2:
+        athlete_hist_df = attribute_athlete_data[["TESTDATE", "NUMERICALVALUE"]]
+        athlete_hist_df["DATA_TYPE"] = "Historical data"
+        athlete_hist_df["BIRTHDAY"] = athlete_birthday
+        athlete_hist_df["DAYS_DIFF"] = (athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"])
+        athlete_hist_df["DAYS_DIFF"] = (athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"]).dt.days
 
+        # Train model
+        x_train = athlete_hist_df["DAYS_DIFF"]
+        y_train = athlete_hist_df["NUMERICALVALUE"]
+        n_samples = 4
+        model = get_linear_model(x_train=x_train, y_train=y_train, n_samples=n_samples)
 
+        # Predict values for first and last datapoint
+        x_pred = athlete_hist_df[["TESTDATE", "DAYS_DIFF"]][-n_samples:]
+        x_pred = x_pred.append(pd.DataFrame([[sel_row_testdate, (sel_row_testdate - athlete_birthday).days]], columns=["TESTDATE", "DAYS_DIFF"]))
+        y_pred, y_pred_80, y_pred_95 = get_pred(model, x_pred["DAYS_DIFF"])
+        #print(y_pred_80)
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=athlete_hist_df["TESTDATE"], y=athlete_hist_df["NUMERICALVALUE"], mode="markers", name="Historical values"))
+        fig.add_trace(go.Scatter(x=[sel_row_testdate], y=[sel_row_data.get("Value")], mode="markers", name="Current test"))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"], y=y_pred, mode="lines", name="Linear model (last" + str(n_samples) + " samples)"))
+        fig.update_traces(marker_size=10)
+        fig.update_layout(
+            title='Past values of selected athlete',
+            xaxis_title='Test date',
+            yaxis_title=sel_row_data.get("Attribute"))
+        st.plotly_chart(fig, use_container_width=True)
+
+        # # Show image
+        # if athlete_metadata["FOTOURL"] != "":
+        #     response = requests.get(athlete_metadata["FOTOURL"])
+        #     img = Image.open(BytesIO(response.content))
+        #     st.image(img, caption=sel_row_data.get("Athlete"))
