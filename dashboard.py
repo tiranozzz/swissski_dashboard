@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
 
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
 from queries import get_hist_data, get_test_files, read_file, get_athlete_data
@@ -27,15 +28,15 @@ with st.spinner("Loading data from Data Warehouse..."):
     hist_data = get_hist_data(dbConn, config=config)
     athlete_data = get_athlete_data(dbConn, config=config)
 
-#st.title("Swissski Dashboard")
+st.title("Swissski Dashboard")
 # Show data files
 with st.spinner("Loading data files..."):
     data_path = current_path + "\\data"
     st.header("File list")
     files = get_test_files(dir_path=data_path)
-    for f in files:
-        st.subheader(f)
+    for f in files:      
         file_df = read_file(data_path + "\\" + f)
+        st.markdown(f":open_file_folder: {f} ({len(file_df)} rows). Check results: {len(file_df)} :white_check_mark: | 0 :warning: | 0 :exclamation:")
         sel_row = AgGrid(
             data=file_df, 
             gridOptions=config["ag_grid"]["grid_options"],
@@ -64,7 +65,22 @@ if len(sel_row["selected_rows"]) > 0:
     
     # Histogram
     with col1:
-        fig = px.histogram(attribute_data, x="NUMERICALVALUE", title="Histogram population")
+        col1_1, col1_2= st.columns(2)
+        with col1_1:
+            gender_options = [athlete_metadata["GENDER"]] + [e for e in attribute_data["GENDER"].unique().tolist() if e != athlete_metadata["GENDER"]] + ["All"]      
+            selectbox_gender = st.selectbox(label='Gender', options=gender_options)
+        with col1_2:
+            sport_options = [athlete_metadata["SPORTART"]] + [e for e in attribute_data["SPORTART"].unique().tolist() if e != athlete_metadata["SPORTART"]] + ["All"]
+            selectbox_sport = st.selectbox(label='Sport', options=sport_options)
+        if selectbox_gender == "All":
+            filtered_attribute_data = attribute_data
+        else:
+            filtered_attribute_data = attribute_data[attribute_data["GENDER"] == selectbox_gender]
+        if selectbox_sport == "All":
+            filtered_attribute_data = filtered_attribute_data
+        else:
+            filtered_attribute_data = filtered_attribute_data[filtered_attribute_data["SPORTART"] == selectbox_sport]                
+        fig = px.histogram(filtered_attribute_data, x="NUMERICALVALUE", title="Histogram population")
         fig.add_vline(x=sel_row_data.get("Value"), line_width=10, line_color="red")
         st.plotly_chart(fig, use_container_width=True)
         st.table(athlete_metadata)
