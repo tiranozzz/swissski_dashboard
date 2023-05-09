@@ -7,7 +7,7 @@ import numpy as np
 
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
 from queries import get_hist_data, get_test_files, read_file, get_athlete_data
-from models import get_linear_model, get_pred
+from models import get_linear_model, get_pred, get_light_color_class
 from connect_util import DatabaseConnection, Config
 from datetime import datetime, date
 from PIL import Image
@@ -102,19 +102,158 @@ if len(sel_row["selected_rows"]) > 0:
         # Predict values for first and last datapoint
         x_pred = athlete_hist_df[["TESTDATE", "DAYS_DIFF"]][-n_samples:]
         x_pred = x_pred.append(pd.DataFrame([[sel_row_testdate, (sel_row_testdate - athlete_birthday).days]], columns=["TESTDATE", "DAYS_DIFF"]))
-        y_pred, y_pred_80, y_pred_95 = get_pred(model, x_pred["DAYS_DIFF"])
-        #print(y_pred_80)
-        
+        y_pred, y_pred_green_light, y_pred_yellow_light = get_pred(
+            model=model, 
+            x_pred=x_pred["DAYS_DIFF"],
+            pi_green_light=0.8,
+            pi_yellow_light=0.95)
+        # st.table(y_pred_green_light)
+        # st.table(y_pred_yellow_light)
+        # st.table(y_pred)
+       
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=athlete_hist_df["TESTDATE"], y=athlete_hist_df["NUMERICALVALUE"], mode="markers", name="Historical values"))
-        fig.add_trace(go.Scatter(x=[sel_row_testdate], y=[sel_row_data.get("Value")], mode="markers", name="Current test"))
-        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"], y=y_pred, mode="lines", name="Linear model (last" + str(n_samples) + " samples)"))
+        # Green light
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_green_light["obs_ci_lower"],
+                                 fill=None, 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="green"),
+                                 line_color="green",
+                                 name=None,
+                                 showlegend=False))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_green_light["obs_ci_upper"],
+                                 fill="tonexty",
+                                 mode="lines",
+                                 line=dict(width=0.5, color="green"),
+                                 line_color="green",
+                                 showlegend=False))
+        # Yellow light
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_yellow_light["obs_ci_lower"],
+                                 fill=None, 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="yellow"),
+                                 line_color="yellow",
+                                 name=None,
+                                 showlegend=False))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_yellow_light["obs_ci_upper"],
+                                 fill="tonexty",
+                                 mode="lines",
+                                 line=dict(width=0.5, color="yellow"),
+                                 line_color="yellow",
+                                 showlegend=False))
+        # Red light
+        # We must find the automatically generated boundaries first
+        y_mins = []
+        y_maxs = []
+        for trace_data in fig.data:
+            y_mins.append(min(trace_data.y))
+            y_maxs.append(max(trace_data.y))
+        y_min = min(y_mins)
+        y_max = max(y_maxs)
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=[y_min],
+                                 fill=None, 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="red"),
+                                 line_color="red",
+                                 name=None,
+                                 showlegend=False))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_yellow_light["obs_ci_lower"],
+                                 fill="tonexty", 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="red"),
+                                 line_color="red",
+                                 name=None,
+                                 showlegend=False))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred_yellow_light["obs_ci_upper"],
+                                 fill=None, 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="red"),
+                                 line_color="red",
+                                 name=None,
+                                 showlegend=False))
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=[y_max],
+                                 fill="tonexty", 
+                                 mode="lines",
+                                 line=dict(width=0.5, color="red"),
+                                 line_color="red",
+                                 name=None,
+                                 showlegend=False))
+        # Historical values
+        fig.add_trace(go.Scatter(x=athlete_hist_df["TESTDATE"],
+                                 y=athlete_hist_df["NUMERICALVALUE"],
+                                 mode="markers",
+                                 marker=dict(color="blue"),
+                                 name="Historical values"))
+        # Current test value
+        fig.add_trace(go.Scatter(x=[sel_row_testdate],
+                                 y=[sel_row_data.get("Value")],
+                                 mode="markers",
+                                 marker=dict(color="white", line=dict(color="black", width=2)),
+                                 name="Current test"))
+        # Model
+        fig.add_trace(go.Scatter(x=x_pred["TESTDATE"],
+                                 y=y_pred, fill=None,
+                                 mode="lines",
+                                 line_color="red",
+                                 name=f"Linear model (last {str(n_samples)} samples)"))
         fig.update_traces(marker_size=10)
         fig.update_layout(
-            title='Past values of selected athlete',
+            title=f"Past values of \"{sel_row_data.get('Athlete')}\"",
             xaxis_title='Test date',
             yaxis_title=sel_row_data.get("Attribute"))
         st.plotly_chart(fig, use_container_width=True)
+
+        # Print boundaries
+        green_lower_bound = y_pred_green_light["obs_ci_lower"][y_pred_green_light.index[-1]]
+        green_upper_bound = y_pred_green_light["obs_ci_upper"][y_pred_green_light.index[-1]]
+        yellow_lower_bound = y_pred_yellow_light["obs_ci_lower"][y_pred_green_light.index[-1]]
+        yellow_upper_bound = y_pred_yellow_light["obs_ci_upper"][y_pred_green_light.index[-1]]
+        
+        # fig = go.Figure(layout_xaxis_range=[yellow_lower_bound * 0.8, yellow_upper_bound * 1.2], layout_yaxis_range=[0,1])
+        # fig.add_vline(x=sel_row_data.get("Value"), line_width=2, line_dash="dash", line_color="black")
+        # fig.add_trace(go.Scatter(x=[yellow_lower_bound],
+        #                          y=[1],
+        #                          fill="tonextx", 
+        #                          mode="lines",
+        #                          line=dict(width=0.5, color="yellow"),
+        #                          line_color="yellow",
+        #                          name=None,
+        #                          showlegend=False))
+        # fig.add_trace(go.Scatter(x=[yellow_upper_bound],
+        #                          y=[1],
+        #                          fill=None,
+        #                          mode="lines",
+        #                          line=dict(width=0.5, color="yellow"),
+        #                          line_color="yellow",
+        #                          showlegend=False))
+        # fig.add_trace(go.Scatter(x=[yellow_lower_bound],
+        #                          y=[1],
+        #                          fill="tonextx", 
+        #                          mode="lines",
+        #                          line=dict(width=0.5, color="yellow"),
+        #                          line_color="yellow",
+        #                          name=None,
+        #                          showlegend=False))
+        # fig.update_traces(marker_size=10)
+        # st.plotly_chart(fig, use_container_width=True)
+
+        st.text(f"Red: [{-np.inf}, {yellow_lower_bound}], [{yellow_upper_bound}, {np.inf}]")
+        st.text(f"Yellow: [{yellow_lower_bound}, {green_lower_bound}], [{green_upper_bound}, {yellow_upper_bound}]")
+        st.text(f"Green: [{green_lower_bound}, {green_upper_bound}]")
+
+        light_color_class = get_light_color_class(y_test=sel_row_data.get("Value"), 
+                                      green_lower_bound=green_lower_bound, 
+                                      green_upper_bound=green_upper_bound, 
+                                      yellow_lower_bound=yellow_lower_bound, 
+                                      yellow_upper_bound=yellow_upper_bound)
+        st.text("Color:" + light_color_class)
 
         # # Show image
         # if athlete_metadata["FOTOURL"] != "":
