@@ -40,5 +40,5 @@ def get_test_files(dir_path):
 
 def read_file(file):
     df = pd.read_csv(file, sep=";")
-    df["Check"] = None
+    df["LightColor"] = None
     return df
