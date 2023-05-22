@@ -1,11 +1,18 @@
 import statsmodels.api as sm
 
+def check_precond(x_train):
+    exception_msg = None
+    if len(x_train) < 2:
+        exception_msg = f"Not enough historical data. Expected at least 2 data samples, available #samples: {len(x_train)}"
+    return exception_msg
+
 def get_linear_model(x_train, y_train, n_samples):
     x_train = x_train[-n_samples:]
     y_train = y_train[-n_samples:]
+    exception_msg = check_precond(x_train)
     x_sm = sm.add_constant(x_train)
     model = sm.OLS(y_train, x_sm).fit()
-    return model
+    return model, exception_msg
 
 def get_pred(model, x_pred, pi_green_light, pi_yellow_light):
     x_pred_sm = sm.add_constant(x_pred)
