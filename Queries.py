@@ -52,9 +52,8 @@ def read_csv(file):
     df["LightColor"] = None
     return df
 
-def read_excel(file, supported_attributes):
-    # TODO: move to config
-    drop_cols = ["Code (Reihe)", "TestNr Jahr", "Name Vorname", "Name", "Vorname", "Geb", "Alter", "sex", "TG", "Kader", "Testdatum", "Ort", "Alti", "Leiter", "Geraet", "Protokoll", "Start_load", "Stufendauer", "Inkrement", "Training", "Gesundheit", "Temp", "Luftdruck", "Notizen"]
+def read_excel(file, supported_attributes, config):
+    drop_cols = config["test_files"]["ignore_columns"]
     with open(file, "rb") as f:
         df = pd.read_excel(io=f)
     # Extract each column to a single row in the dataframe

@@ -1,7 +1,6 @@
 import snowflake.connector
 import yaml
 import os
-import pandas as pd
 import streamlit as st
 
 class DatabaseConnection:
