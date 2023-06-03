@@ -1,4 +1,3 @@
 plotly
 dropbox
 streamlit-aggrid
--e /app/swissski_dashboard/queries.py
