@@ -2,3 +2,4 @@ plotly
 dropbox
 streamlit-aggrid
 statsmodels
+snowflake-connector-python
