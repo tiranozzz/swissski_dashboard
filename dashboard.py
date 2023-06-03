@@ -8,7 +8,7 @@ import dropbox
 from st_aggrid import AgGrid
 from st_aggrid.shared import ColumnsAutoSizeMode
 from queries import get_hist_data, get_athlete_data
-from file_util import get_test_files, read_excel, get_test_files_from_dropbox
+from file_util import read_excel, get_test_files_from_dropbox
 from models import get_linear_model, get_pred, get_light_color_class
 from util import DatabaseConnection, Config
 from datetime import date
