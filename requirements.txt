@@ -4,3 +4,4 @@ streamlit-aggrid
 statsmodels
 snowflake-connector-python
 PyYAML
+pyarrow==8.0.0
