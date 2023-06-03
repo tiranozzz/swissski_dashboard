@@ -13,7 +13,7 @@ class DatabaseConnection:
         conn = snowflake.connector.connect(
             user=_self.database_config["user"],
             account=_self.database_config["account"],
-            password=_self.database_config["password"],
+            password=st.secrets["DB_PASSWORD"],
             host=_self.database_config["host"],
             database=_self.database_config["database"],
             session_parameters=_self.database_config["session_parameters"]

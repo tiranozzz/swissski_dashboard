@@ -1,13 +1,13 @@
 database:
   user: SSKI_R
   account: bd08448
-  password: dummy
+  # password: stored as a secret in streamlit
   host: bd08448.switzerland-north.azure.snowflakecomputing.com
   database: SSKI
   session_parameters: {'QUERY_TAG': 'OST Data Analysis'}
 
 dropbox:
-  access_token: dummy
+  # access_token: stored as a secret in streamlit
   files_to_display_path: "/files_to_display"
 
 test_files:

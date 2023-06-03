@@ -27,7 +27,7 @@ with st.spinner("Loading data from Data Warehouse..."):
     athlete_data = get_athlete_data(dbConn, config=config)
 
 # Dropbox connection
-dbx_access_token = config["dropbox"]["access_token"]
+dbx_access_token = st.secrets["DROPBOX_ACCESS_TOKEN"]
 dbx_input_folder = config["dropbox"]["files_to_display_path"]
 dbx = dropbox.Dropbox(dbx_access_token)
 
