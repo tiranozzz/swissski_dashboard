@@ -11,10 +11,10 @@ class DatabaseConnection:
     @st.cache_resource
     def get_connection(_self):
         conn = snowflake.connector.connect(
-            user=_self.database_config["user"],
-            account=_self.database_config["account"],
+            user=st.secrets["DB_USER"],
+            account=st.secrets["DB_ACCOUNT"],
             password=st.secrets["DB_PASSWORD"],
-            host=_self.database_config["host"],
+            host=st.secrets["DB_HOST"],
             database=_self.database_config["database"],
             session_parameters=_self.database_config["session_parameters"]
         )

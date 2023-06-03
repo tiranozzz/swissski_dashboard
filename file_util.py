@@ -10,8 +10,11 @@ def translate_umlaute(input_string):
 
 def get_test_files_from_dropbox(dbx, input_folder):
     res = []
-    for entry in dbx.files_list_folder(input_folder).entries:
-        res.append(entry)
+    try:
+        for entry in dbx.files_list_folder(input_folder).entries:
+            res.append(entry)
+    except Exception as err:
+        st.error(err)
     return res
 
 def get_test_files(dir_path):

@@ -1,8 +1,8 @@
 database:
-  user: SSKI_R
-  account: bd08448
+  # user: stored as a secret in streamlit
+  # account: stored as a secret in streamlit
   # password: stored as a secret in streamlit
-  host: bd08448.switzerland-north.azure.snowflakecomputing.com
+  # host: stored as a secret in streamlit
   database: SSKI
   session_parameters: {'QUERY_TAG': 'OST Data Analysis'}
 

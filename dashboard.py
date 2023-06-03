@@ -27,9 +27,10 @@ with st.spinner("Loading data from Data Warehouse..."):
     athlete_data = get_athlete_data(dbConn, config=config)
 
 # Dropbox connection
-dbx_access_token = st.secrets["DROPBOX_ACCESS_TOKEN"]
 dbx_input_folder = config["dropbox"]["files_to_display_path"]
-dbx = dropbox.Dropbox(dbx_access_token)
+dbx = dropbox.Dropbox(app_key=st.secrets["DROPBOX_APP_KEY"],
+                      app_secret=st.secrets["DROPBOX_APP_SECRET"],
+                      oauth2_refresh_token=st.secrets["DROPBOX_REFRESH_TOKEN"])
 
 # Train the models and write models to Dictionary
 def train_models(file_df, filename):
