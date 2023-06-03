@@ -1,6 +1,5 @@
-import os
-import pandas as pd
 import streamlit as st
+from file_util import translate_umlaute
 
 @st.cache_data
 def get_hist_data(_dbConn, config):
@@ -34,41 +33,3 @@ def get_athlete_data(_dbConn, config):
         df.at[idx, "NAME"] = translate_umlaute(row["NAME"])
     df = df.set_index("NAME")
     return df
-
-def translate_umlaute(input_string):
-    special_char_map = {ord('ä'):'ae', ord('ü'):'ue', ord('ö'):'oe', ord('ß'):'ss', ord('Ä'):'Ae', ord('Ü'):'Ue', ord('Ö'):'Oe'}
-    return input_string.translate(special_char_map)
-
-def get_test_files(dir_path):
-    res = []
-    for path in os.listdir(dir_path):
-        # check if current path is a file
-        if os.path.isfile(os.path.join(dir_path, path)) and str(path).endswith(".xlsx") and not str(path).startswith("~"):
-            res.append(path)
-    return res
-
-def read_csv(file):
-    df = pd.read_csv(file, sep=";")
-    df["LightColor"] = None
-    return df
-
-def read_excel(file, supported_attributes, config):
-    drop_cols = config["test_files"]["ignore_columns"]
-    with open(file, "rb") as f:
-        df = pd.read_excel(io=f)
-    # Extract each column to a single row in the dataframe
-    df_tests = pd.DataFrame()
-    for row_idx, row_val in df.iterrows():
-        for col in df.columns:
-            if not col in drop_cols:
-                test_dict = {}
-                test_dict["Athlete"] = row_val["Name Vorname"]
-                test_dict["TestDate"] = row_val["Testdatum"]
-                test_dict["Birthday"] = row_val["Geb"]
-                test_dict["Attribute"] = col
-                test_dict["AttributeSupported"] = col in supported_attributes
-                test_dict["Value"] = row_val[col]
-                test_dict["TestID"] = file + "|" + row_val["Name Vorname"] + "|" + str(row_val["Testdatum"]) + "|" + col
-                # TODO: move to pd.concat       
-                df_tests = df_tests.append(test_dict, ignore_index=True)
-    return df_tests

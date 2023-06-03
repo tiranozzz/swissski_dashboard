@@ -28,7 +28,7 @@ class Config:
 
     @st.cache_resource
     def read_config(_self):
-        with open(_self.path + "\\config.yaml", "r") as stream:
+        with open(_self.path + "\\config.yaml", "r", encoding="utf-8") as stream:
             try:
                 return yaml.safe_load(stream)
             except yaml.YAMLError as exc:

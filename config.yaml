@@ -1,0 +1,278 @@
+database:
+  user: SSKI_R
+  account: bd08448
+  password: dummy
+  host: bd08448.switzerland-north.azure.snowflakecomputing.com
+  database: SSKI
+  session_parameters: {'QUERY_TAG': 'OST Data Analysis'}
+
+dropbox:
+  access_token: dummy
+  files_to_display_path: "/files_to_display"
+
+test_files:
+  # Ignore the following columns in the test files and don't show them as as test attributes row in the app
+  ignore_columns: 
+    - Attribute
+    - Athlete
+    - Value
+    - TestDate
+    - "Code (Reihe)"
+    - "TestNr Jahr"
+    - "Name Vorname"
+    - "Name"
+    - "Vorname"
+    - "Geb"
+    - "Alter"
+    - "sex"
+    - "TG"
+    - "Kader"
+    - "Testdatum"
+    - "Ort"
+    - "Alti"
+    - "Leiter"
+    - "Geraet"
+    - "Protokoll"
+    - "Start_load"
+    - "Stufendauer"
+    - "Inkrement"
+    - "Training"
+    - "Gesundheit"
+    - "Temp"
+    - "Luftdruck"
+    - "Notizen"
+  # Columns used for mapping
+  mandatory_columns:
+    - "Name Vorname"
+    - "Testdatum"
+    - "Geb"
+
+# Show/Hide not supported attributes, set to True if you are trying to load a huge dataset
+show_only_supported_attributes: False
+
+# Supported attributes
+test_attributes:
+  Gewicht:
+    model: LinearModel
+    n_samples: 8
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Groesse:
+    model: LinearModel
+    n_samples: 10
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  4mM_Prel:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  4mM_Pabs:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  VO2_Max:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  VO2rel:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Hfmax_abs:
+    model: LinearModel
+    n_samples: 10
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  FFM:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  2mM_Prel:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  2mM_Pabs:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  VS1_Prel:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  VS1_P%:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  VS2_Prel:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Statojump 100% Pmax_rel [Watt/kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Elastojump 100% Pmax_rel [Watt/kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Körpermasse [kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  MW Flex/Ext 360:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  MW Ext360 NM:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  MW Flex360 NM:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Flex/Ext 60 L:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Flex/Ext 60 R:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  L Ext 60 NM:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  R Ext 60 NM:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Statojump 200% Pmax_rel [Watt/kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Elastojump 200% Pmax_rel [Watt/kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Statojump 100% s_max [cm]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  Statojump 100% s_max [cm]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  # TODO: fix errors with degree symbol
+  # IsoTest 100'°' Fmax_iso [N]:
+  #   model: LinearModel
+  #   n_samples: 5
+  #   pi_green_light: 0.8
+  #   pi_yellow_light: 0.95
+  # IsoTest 100'°' links Fmax_iso [N]:
+  #   model: LinearModel
+  #   n_samples: 5
+  #   pi_green_light: 0.8
+  #   pi_yellow_light: 0.95
+  # IsoTest 100'°' rechts Fmax_iso [N]:
+  #   model: LinearModel
+  #   n_samples: 5
+  #   pi_green_light: 0.8
+  #   pi_yellow_light: 0.95
+  # IsoTest 100'°' Fmax_iso_rel [N/kg]:
+  #   model: LinearModel
+  #   n_samples: 5
+  #   pi_green_light: 0.8
+  #   pi_yellow_light: 0.95
+
+# Layout settings for the table on top
+ag_grid:
+  grid_options: {
+    "defaultColDef": {
+      "minWidth": 5,
+      "editable": True,
+      "filter": True,
+      "resizable": True,
+      "sortable": True,
+      "enableRowGroup": True,
+      "value": True,
+      "aggFunc": "sum"
+    },
+    "columnDefs": [
+      {
+        "headerName": "Attribute",
+        "field": "Attribute",
+        "type": [],
+        "checkboxSelection": True
+      },
+      # {
+      #   "headerName": "TestID",
+      #   "field": "TestID",
+      #   "type": [],
+      # },
+      {
+        "headerName": "Athlete",
+        "field": "Athlete",
+        "type": [],
+      },
+      {
+        "headerName": "Value",
+        "field": "Value",
+        "type": [
+          "numericColumn",
+          "numberColumnFilter",
+        ],
+      },
+      {
+        "headerName": "Test date",
+        "field": "TestDate",
+        "type":[
+          "dateColumnFilter",
+          "customDateTimeFormat"
+        ],
+        "custom_format_string":"yyyy-MM-dd"
+      },
+      {
+        "headerName": "Light color",
+        "field": "LightColor",
+        "type": [
+          "numericColumn",
+          "numberColumnFilter",
+        ],
+        "cellStyle": "--x_x--0_0-- function(params) { if (['red', 'yellow', 'green'].includes(params.value)) { return { 'color': 'black', 'backgroundColor': params.value } } else if (params.value == 'ERROR') { return { 'color': 'black', 'backgroundColor': 'red' } } else { return { 'color': 'black', 'backgroundColor': 'white' } } }; --x_x--0_0--"
+      }
+    ],
+    "rowSelection": "single",
+    "rowMultiSelectWithClick": False,
+    "suppressRowDeselection": False,
+    "suppressRowClickSelection": True,
+    "groupSelectsChildren": False,
+    "groupSelectsFiltered": False,
+    "domLayout": "normal",
+    "defaultState": { colId: "Value", sort: "asc", sortIndex: 0 }
+  }
+  
