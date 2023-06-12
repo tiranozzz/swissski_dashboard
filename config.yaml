@@ -187,27 +187,26 @@ test_attributes:
     n_samples: 5
     pi_green_light: 0.8
     pi_yellow_light: 0.95
-  # TODO: fix errors with degree symbol
-  # IsoTest 100'°' Fmax_iso [N]:
-  #   model: LinearModel
-  #   n_samples: 5
-  #   pi_green_light: 0.8
-  #   pi_yellow_light: 0.95
-  # IsoTest 100'°' links Fmax_iso [N]:
-  #   model: LinearModel
-  #   n_samples: 5
-  #   pi_green_light: 0.8
-  #   pi_yellow_light: 0.95
-  # IsoTest 100'°' rechts Fmax_iso [N]:
-  #   model: LinearModel
-  #   n_samples: 5
-  #   pi_green_light: 0.8
-  #   pi_yellow_light: 0.95
-  # IsoTest 100'°' Fmax_iso_rel [N/kg]:
-  #   model: LinearModel
-  #   n_samples: 5
-  #   pi_green_light: 0.8
-  #   pi_yellow_light: 0.95
+  IsoTest 100° Fmax_iso [N]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  IsoTest 100° links Fmax_iso [N]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  IsoTest 100° rechts Fmax_iso [N]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
+  IsoTest 100° Fmax_iso_rel [N/kg]:
+    model: LinearModel
+    n_samples: 5
+    pi_green_light: 0.8
+    pi_yellow_light: 0.95
 
 # Layout settings for the table on top
 ag_grid:

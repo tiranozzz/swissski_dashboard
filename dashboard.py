@@ -25,7 +25,6 @@ with st.spinner("Establishing database connection..."):
 with st.spinner("Loading data from Data Warehouse..."):
     hist_data = get_hist_data(dbConn, config=config)
     athlete_data = get_athlete_data(dbConn, config=config)
-
 # Dropbox connection
 dbx_input_folder = config["dropbox"]["files_to_display_path"]
 dbx = dropbox.Dropbox(app_key=st.secrets["DROPBOX_APP_KEY"],
@@ -67,10 +66,13 @@ def train_models(file_df, filename):
             attribute_athlete_data_df = attribute_athlete_data_df.sort_values(by=["TESTDATE"])
             athlete_hist_df = attribute_athlete_data_df[["TESTDATE", "NUMERICALVALUE"]]
             # TODO: check FutureWarning
-            athlete_hist_df.loc[:, "BIRTHDAY"] = athlete_birthday
-            athlete_hist_df["DAYS_DIFF"] = (athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"]).dt.days
+            if len(athlete_hist_df) == 0:
+                model_dict[key]["exception_msg"] = f"No previous test results found for athlete '{item['Athlete']}' and attribute '{item['Attribute']}'"
+                model_dict[key]["light_color_class"] = "ERROR"
             # Train model
-            if item["ModelType"] == "LinearModel":
+            elif item["ModelType"] == "LinearModel":
+                athlete_hist_df.loc[:, "BIRTHDAY"] = athlete_birthday
+                athlete_hist_df["DAYS_DIFF"] = (athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"]).dt.days
                 model, exception_msg = get_linear_model(x_train=athlete_hist_df["DAYS_DIFF"], 
                                         y_train=athlete_hist_df["NUMERICALVALUE"], 
                                         n_samples=item["n_samples"])

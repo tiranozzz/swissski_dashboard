@@ -53,7 +53,7 @@ def read_excel(file, supported_attributes, config, dbx):
                     test_dict = {}
                     test_dict["AttributeSupported"] = col in supported_attributes
                     if show_only_supported_attributes == False or (show_only_supported_attributes == True and test_dict["AttributeSupported"] == True):
-                        test_dict["Athlete"] = row_val["Name Vorname"]
+                        test_dict["Athlete"] = translate_umlaute(row_val["Name Vorname"])
                         test_dict["TestDate"] = row_val["Testdatum"]
                         test_dict["Birthday"] = row_val["Geb"]
                         test_dict["Attribute"] = col
