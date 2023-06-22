@@ -27,9 +27,9 @@ with st.spinner("Loading data from Data Warehouse..."):
     athlete_data = get_athlete_data(dbConn, config=config)
 # Dropbox connection
 dbx_input_folder = config["dropbox"]["files_to_display_path"]
-dbx = dropbox.Dropbox(app_key=st.secrets["DROPBOX_APP_KEY"],
-                      app_secret=st.secrets["DROPBOX_APP_SECRET"],
-                      oauth2_refresh_token=st.secrets["DROPBOX_REFRESH_TOKEN"])
+dbx = dropbox.Dropbox(app_key=st.secrets.dropbox.app_key,
+                      app_secret=st.secrets.dropbox.app_secret,
+                      oauth2_refresh_token=st.secrets.dropbox.refresh_token)
 
 # Train the models and write models to Dictionary
 def train_models(file_df, filename):
@@ -137,14 +137,11 @@ with col1:
     # Show data files
     files_dict = {"model_dict": {}}
     sel_row_list = []
-    # data_path = current_path + "\\data"
     st.header("File list")
-    # files = get_test_files(dir_path=data_path)
     files = get_test_files_from_dropbox(dbx, dbx_input_folder)
     if len(files) == 0:
         st.error("No files found")
     for f in files:
-        # files_dict["path"] = data_path
         files_dict["filename"] = f
         file_df, file_val_errors = read_excel(file=files_dict["filename"].path_display, supported_attributes=config["test_attributes"], config=config, dbx=dbx)
         files_dict["df"] = file_df

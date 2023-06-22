@@ -3,7 +3,7 @@ database:
   # account: stored as a secret in streamlit
   # password: stored as a secret in streamlit
   # host: stored as a secret in streamlit
-  database: SSKI
+  # database: stored as secret in streamlit
   session_parameters: {'QUERY_TAG': 'OST Data Analysis'}
 
 dropbox:
@@ -41,6 +41,10 @@ test_files:
     - "Temp"
     - "Luftdruck"
     - "Notizen"
+    - "AthleteName"
+    - "Group"
+    - "TestType"
+    - "fs"
   # Columns used for mapping
   mandatory_columns:
     - "Name Vorname"

@@ -12,7 +12,8 @@ def get_test_files_from_dropbox(dbx, input_folder):
     res = []
     try:
         for entry in dbx.files_list_folder(input_folder).entries:
-            res.append(entry)
+            if str(entry.path_lower).endswith(".xlsx") and not str(entry.path_lower).startswith("~"):
+                res.append(entry)
     except Exception as err:
         st.error(err)
     return res
