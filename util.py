@@ -26,7 +26,6 @@ class Config:
         self.path = os.path.realpath(os.path.dirname(__file__))
         self.config = self.read_config()
 
-    @st.cache_resource
     def read_config(_self):
         with open(_self.path + "/config.yaml", "r", encoding="utf-8") as stream:
             try:

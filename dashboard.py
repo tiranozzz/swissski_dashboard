@@ -48,8 +48,16 @@ def train_models(file_df, filename):
                 elif col == "TestDate":
                     test_dict["TestDateDatetime"] = val.to_pydatetime().date()
             test_dict["filename"] = filename
-            # Enrich with data from athlete
-            test_dict["AthleteExists"] = row["Athlete"] in athlete_data.index.values.tolist()
+            # Enrich with data from athlete / Mapping
+            if row["Athlete"] in athlete_data.index.values.tolist():
+                athlete_idx = athlete_data.index.values.tolist().index(row["Athlete"])
+                # Mapping with Birthday of Athlete in addition to name
+                if date.fromisoformat(athlete_data.iloc[athlete_idx]["GEBDAT"]) == row["Birthday"].date():
+                    test_dict["AthleteExists"] = True
+                else:
+                    test_dict["AthleteExists"] = False
+            else:
+                test_dict["AthleteExists"] = False
             if test_dict["AthleteExists"]:
                 athlete_metadata_series = athlete_data.loc[row["Athlete"]]
                 athlete_birthday = date.fromisoformat(athlete_metadata_series["GEBDAT"])
@@ -112,7 +120,7 @@ def train_models(file_df, filename):
             else:
                 st.error(f"Model type {item['ModelType']} not implemented")
         else:
-            model_dict[key]["exception_msg"] = f"Athlete '{item['Athlete']}' not found in the database"
+            model_dict[key]["exception_msg"] = f"Athlete '{item['Athlete']}' with birthday '{item['Birthday'].date()}' not found in the database"
             model_dict[key]["light_color_class"] = "ERROR"
             
     # Display
