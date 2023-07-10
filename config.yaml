@@ -13,10 +13,10 @@ dropbox:
 test_files:
   # Ignore the following columns in the test files and don't show them as as test attributes row in the app
   ignore_columns: 
-    - Attribute
-    - Athlete
-    - Value
-    - TestDate
+    - "Attribute"
+    - "Athlete"
+    - "Value"
+    - "TestDate"
     - "Code (Reihe)"
     - "TestNr Jahr"
     - "Name Vorname"
