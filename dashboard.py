@@ -73,14 +73,13 @@ def train_models(file_df, filename):
             attribute_athlete_data_df = attribute_data_df[attribute_data_df["NAME"] == item["Athlete"]]
             attribute_athlete_data_df = attribute_athlete_data_df.sort_values(by=["TESTDATE"])
             athlete_hist_df = attribute_athlete_data_df[["TESTDATE", "NUMERICALVALUE"]]
-            # TODO: check FutureWarning
             if len(athlete_hist_df) == 0:
                 model_dict[key]["exception_msg"] = f"No previous test results found for athlete '{item['Athlete']}' and attribute '{item['Attribute']}'"
                 model_dict[key]["light_color_class"] = "ERROR"
             # Train model
             elif item["ModelType"] == "LinearModel":
-                athlete_hist_df.loc[:, "BIRTHDAY"] = athlete_birthday
-                athlete_hist_df["DAYS_DIFF"] = (athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"]).dt.days
+                athlete_hist_df = athlete_hist_df.assign(BIRTHDAY=athlete_birthday)
+                athlete_hist_df = athlete_hist_df.assign(DAYS_DIFF=(athlete_hist_df["TESTDATE"] - athlete_hist_df["BIRTHDAY"]).dt.days)
                 model, exception_msg = get_linear_model(x_train=athlete_hist_df["DAYS_DIFF"], 
                                         y_train=athlete_hist_df["NUMERICALVALUE"], 
                                         n_samples=item["n_samples"])

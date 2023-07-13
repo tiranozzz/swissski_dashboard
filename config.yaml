@@ -232,11 +232,6 @@ ag_grid:
         "type": [],
         "checkboxSelection": True
       },
-      # {
-      #   "headerName": "TestID",
-      #   "field": "TestID",
-      #   "type": [],
-      # },
       {
         "headerName": "Athlete",
         "field": "Athlete",
