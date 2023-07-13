@@ -1,7 +1,6 @@
 import os
 import io
 import pandas as pd
-import dropbox
 import streamlit as st
 
 def translate_umlaute(input_string):
